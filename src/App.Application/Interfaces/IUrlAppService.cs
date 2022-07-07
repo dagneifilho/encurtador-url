@@ -6,6 +6,6 @@ namespace App.Application.Interfaces
 {
     public interface IUrlAppService : IDisposable
     {
-        Task<string> Encurtar(FiltroUrl url);
+        Task<string> Encurtar(PostUrl url);
     }
 }

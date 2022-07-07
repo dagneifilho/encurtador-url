@@ -1,7 +1,11 @@
+using App.Domain.Models;
+using System;
+using System.Threading.Tasks;
+
 namespace App.Infra.Data.Interfaces
 {
-    public interface IUrlRepository
+    public interface IUrlRepository : IDisposable
     {
-        Task Inserir(Urls urls);
+        Task<bool> Insert(InsertUrlBD urlBD);
     }
 }

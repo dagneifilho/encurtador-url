@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace App.Application.Models.Request
 {
-    public class FiltroUrl : IValidatableObject
+    public class PostUrl : IValidatableObject
     {
         public string Url {get;set;}
 

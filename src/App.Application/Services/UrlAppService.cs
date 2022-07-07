@@ -14,25 +14,26 @@ namespace App.Application.Services
             _urlRepository = urlRepository;
         }
         #region [Encurtar]
-        public async Task<string> Encurtar(FiltroUrl filtro)
+        public async Task<string> Encurtar(PostUrl url)
         {
             var basePath = "http://localhost:5001/link/";
-            var urls = new Urls
+            var urlBD = new InsertUrlBD
             {
-                DataCriacao = DateTime.Now,
-                UrlOriginal = filtro.Url,
-                Key = Guid.NewGuid().ToString().Substring(0,8).ToLower()
+                DATA_CRIACAO = DateTime.Now,
+                URL_ORIGINAL = url.Url,
+                ID = Guid.NewGuid().ToString().Substring(0,8).ToLower()
             };
-            await _urlRepository.Inserir(urls);
+            await _urlRepository.Insert(urlBD);
 
-            return basePath + urls.Key;
+            return basePath + urlBD.ID;
         }
         #endregion
 
         #region [Dispose]
         public void Dispose()
         {
-
+            
+            GC.SuppressFinalize(this);
         }
         #endregion
     }
