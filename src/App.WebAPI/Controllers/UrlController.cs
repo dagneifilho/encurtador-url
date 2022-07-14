@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -18,13 +19,16 @@ namespace App.WebAPI.Controllers
         {
             _appService = appService;
         }
+        //TODO MELHORAR CONTROLLER
         [HttpPost("")]
-        public async Task<IActionResult> EncurtarUrl(FiltroUrl filtroUrl)
+        public async Task<IActionResult> EncurtarUrl(PostUrl postUrl)
         {
             if(ModelState.IsValid)
             {
-                var result =  await _appService.Encurtar(filtroUrl);
-                return Ok(result);
+                (string result, bool valido) = await _appService.Encurtar(postUrl);
+                if (valido)
+                    return Created("", result);
+                return BadRequest();
             }
             else 
             {
@@ -35,6 +39,14 @@ namespace App.WebAPI.Controllers
                                       select error.ErrorMessage;
                 return StatusCode(412, errors.ToList());
             }   
+        }
+        [HttpGet("{idUrl}")]
+        public async Task<ActionResult> GetUrlOriginal(string idUrl)
+        {
+            var urlOriginal = await _appService.GetUrlOriginal(idUrl);
+            if (urlOriginal == null)
+                return NoContent();
+            return Ok(urlOriginal);
         }
     }
 }

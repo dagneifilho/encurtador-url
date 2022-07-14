@@ -1,4 +1,5 @@
 ﻿using App.Domain.Models;
+using App.Infra.Data.Context;
 using App.Infra.Data.Dapper;
 using App.Infra.Data.Interfaces;
 using Dapper;
@@ -13,30 +14,27 @@ namespace App.Infra.Data.Repository
 {
     public class UrlRepository : IUrlRepository
     {
-        private readonly IConnectionFactory _dbConnection;
-
-        public UrlRepository(IConnectionFactory connection)
+        private readonly UrlContext _context;
+        public UrlRepository(UrlContext context)
         {
-            _dbConnection = connection;
+            _context = context;
         }
+
+
         public void Dispose()
         {
-            _dbConnection.Connection().Dispose();
+            if (_context != null)
+                _context.Dispose();
+            GC.SuppressFinalize(this);
         }
 
-        public async Task<dynamic> Inserir(Urls urls)
+        public void Insert(UrlBD urlBD)
         {
-            DynamicParameters parameters = new DynamicParameters();
-            var query = @"INSERT INTO URL (ID, URL_ORIGINAL, DATA_CRIACAO) VALUES (@id, @urlOriginal, @dataCriacao)";
-            parameters.Add("@id",urls.ID,DbType.String,ParameterDirection.Input);
-            parameters.Add("@urlOriginal", urls.URL_ORIGINAL,DbType.String,ParameterDirection.Input);
-            parameters.Add("@dataCriacao", urls.DATA_CRIACAO.ToString("yyyy/MM/dd"), DbType.Date, ParameterDirection.Input);
-            
-            using (var connection = _dbConnection.Connection())
-            {
-                return await connection.QueryAsync(query, parameters);
-            }
-          
+             _context.url.Add(urlBD);
+        }
+        public async Task<UrlBD> GetUrlOriginalBD(string id)
+        {
+            return await _context.url.FindAsync(id);
         }
     }
 }

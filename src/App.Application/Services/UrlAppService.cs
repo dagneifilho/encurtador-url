@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using App.Application.Interfaces;
 using App.Application.Models.Request;
+using App.Application.Models.Response;
 using App.Domain.Models;
 using App.Infra.Data.Interfaces;
 
@@ -9,24 +10,49 @@ namespace App.Application.Services
 {
     public class UrlAppService : IUrlAppService
     {
-        private readonly IUrlRepository _urlRepository;
-        public UrlAppService(IUrlRepository urlRepository){
-            _urlRepository = urlRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        public UrlAppService(IUnitOfWork unitOfWork){
+            _unitOfWork = unitOfWork;
         }
         #region [Encurtar]
-        public async Task<string> Encurtar(PostUrl url)
+        public async Task<(string,bool)> Encurtar(PostUrl url)
         {
-            var basePath = "http://localhost:5001/link/";
-            var urlBD = new InsertUrlBD
+            // TODO USAR AUTO MAPPER
+             var urlBD = new UrlBD
             {
                 DATA_CRIACAO = DateTime.Now,
                 URL_ORIGINAL = url.Url,
                 ID = Guid.NewGuid().ToString().Substring(0,8).ToLower()
             };
-            await _urlRepository.Insert(urlBD);
-
-            return basePath + urlBD.ID;
+            //TODO MELHORAR
+            try
+            {
+                _unitOfWork.UrlRepository.Insert(urlBD);
+                await _unitOfWork.Commit();
+                return (urlBD.ID,true);
+            } 
+            catch(Exception e)
+            {
+                return (e.Message, false);
+            }
+            
         }
+        #endregion
+
+        #region GetUrlOriginal
+
+        public async Task<UrlResponse> GetUrlOriginal(string idUrl)
+        {
+            var result = await _unitOfWork.UrlRepository.GetUrlOriginalBD(idUrl);
+            //TODO USAR AUTO MAPPER
+            var response = new UrlResponse
+            {
+                UrlOriginal = result.URL_ORIGINAL,
+                DataCriacao = result.DATA_CRIACAO.ToString("dd/MM/yyyy")
+            };
+            return response;
+        }
+
         #endregion
 
         #region [Dispose]

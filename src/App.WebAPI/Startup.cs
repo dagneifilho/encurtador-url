@@ -1,10 +1,13 @@
 using App.Application.Interfaces;
 using App.Application.Services;
+using App.Infra.Data.Context;
 using App.Infra.Data.Dapper;
 using App.Infra.Data.Interfaces;
 using App.Infra.Data.Repository;
+using App.Infra.Data.UnitOfWork;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,9 +27,13 @@ namespace App.WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var connectionString = Configuration.GetConnectionString("DefaultConnection");
             services.AddScoped<IConnectionFactory, DefaultSqlConnectionFacotry>();
             services.AddScoped<IUrlAppService, UrlAppService>();
             services.AddScoped<IUrlRepository, UrlRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddDbContext<UrlContext>(options => options.UseMySql(connectionString,ServerVersion.AutoDetect(connectionString)));
 
 
             services.AddControllers();

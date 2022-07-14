@@ -6,6 +6,7 @@ namespace App.Infra.Data.Interfaces
 {
     public interface IUrlRepository : IDisposable
     {
-        Task<bool> Insert(InsertUrlBD urlBD);
+        void Insert(UrlBD urlBD);
+        Task<UrlBD> GetUrlOriginalBD(string id);
     }
 }
